@@ -1,0 +1,58 @@
+@baseUrl = http://localhost:8888
+
+### RealtyAgency - CreateRealEstate
+POST {{baseUrl}}/api/realty-agency/realty/create
+Content-Type: application/json
+
+{
+  "id": "RE001",
+  "address": "上海市浦东新区XX路1号",
+  "area": 120.5,
+  "owner": "Alice"
+}
+
+### RealtyAgency - QueryRealEstate
+GET {{baseUrl}}/api/realty-agency/realty/RE001
+
+### RealtyAgency - QueryRealEstateList
+GET {{baseUrl}}/api/realty-agency/realty/list?pageSize=10&bookmark=&status=
+
+### RealtyAgency - QueryBlockList
+GET {{baseUrl}}/api/realty-agency/block/list?pageSize=10&pageNum=1
+
+### TradingPlatform - CreateTransaction
+POST {{baseUrl}}/api/trading-platform/transaction/create
+Content-Type: application/json
+
+{
+  "txId": "TX001",
+  "realEstateId": "RE001",
+  "seller": "Alice",
+  "buyer": "Bob",
+  "price": 1000000
+}
+
+### TradingPlatform - QueryRealEstate
+GET {{baseUrl}}/api/trading-platform/realty/RE001
+
+### TradingPlatform - QueryTransaction
+GET {{baseUrl}}/api/trading-platform/transaction/TX001
+
+### TradingPlatform - QueryTransactionList
+GET {{baseUrl}}/api/trading-platform/transaction/list?pageSize=10&bookmark=&status=
+
+### TradingPlatform - QueryBlockList
+GET {{baseUrl}}/api/trading-platform/block/list?pageSize=10&pageNum=1
+
+### Bank - CompleteTransaction
+POST {{baseUrl}}/api/bank/transaction/complete/TX001
+
+### Bank - QueryTransaction
+GET {{baseUrl}}/api/bank/transaction/TX001
+
+### Bank - QueryTransactionList
+GET {{baseUrl}}/api/bank/transaction/list?pageSize=10&bookmark=&status=
+
+### Bank - QueryBlockList
+GET {{baseUrl}}/api/bank/block/list?pageSize=10&pageNum=1
+

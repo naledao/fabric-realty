@@ -1,0 +1,503 @@
+openapi: 3.0.3
+info:
+  title: fabric-realty server API (baseline)
+  version: "M0"
+  description: Baseline contract extracted from Go(Gin) implementation in application/server.
+servers:
+  - url: http://localhost:8888
+tags:
+  - name: RealtyAgency
+    description: Org1 - Realty Agency
+  - name: TradingPlatform
+    description: Org3 - Trading Platform
+  - name: Bank
+    description: Org2 - Bank
+paths:
+  /api/realty-agency/realty/create:
+    post:
+      tags: [RealtyAgency]
+      summary: Create real estate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRealEstateRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/realty-agency/realty/{id}:
+    get:
+      tags: [RealtyAgency]
+      summary: Query real estate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseRealEstate"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/realty-agency/realty/list:
+    get:
+      tags: [RealtyAgency]
+      summary: Query real estate list (chaincode pagination)
+      parameters:
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 10 }
+        - name: bookmark
+          in: query
+          required: false
+          schema: { type: string, default: "" }
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+            enum: ["", "NORMAL", "IN_TRANSACTION"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseRealEstateQueryResult"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/realty-agency/block/list:
+    get:
+      tags: [RealtyAgency]
+      summary: Query blocks (local storage)
+      parameters:
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 10 }
+        - name: pageNum
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 1 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBlockQueryResult"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/trading-platform/transaction/create:
+    post:
+      tags: [TradingPlatform]
+      summary: Create transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransactionRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/trading-platform/realty/{id}:
+    get:
+      tags: [TradingPlatform]
+      summary: Query real estate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseRealEstate"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/trading-platform/transaction/{txId}:
+    get:
+      tags: [TradingPlatform]
+      summary: Query transaction
+      parameters:
+        - name: txId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseTransaction"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/trading-platform/transaction/list:
+    get:
+      tags: [TradingPlatform]
+      summary: Query transaction list (chaincode pagination)
+      parameters:
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 10 }
+        - name: bookmark
+          in: query
+          required: false
+          schema: { type: string, default: "" }
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+            enum: ["", "PENDING", "COMPLETED"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseTransactionQueryResult"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/trading-platform/block/list:
+    get:
+      tags: [TradingPlatform]
+      summary: Query blocks (local storage)
+      parameters:
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 10 }
+        - name: pageNum
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 1 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBlockQueryResult"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/bank/transaction/complete/{txId}:
+    post:
+      tags: [Bank]
+      summary: Complete transaction
+      parameters:
+        - name: txId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/bank/transaction/{txId}:
+    get:
+      tags: [Bank]
+      summary: Query transaction
+      parameters:
+        - name: txId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseTransaction"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/bank/transaction/list:
+    get:
+      tags: [Bank]
+      summary: Query transaction list (chaincode pagination)
+      parameters:
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 10 }
+        - name: bookmark
+          in: query
+          required: false
+          schema: { type: string, default: "" }
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+            enum: ["", "PENDING", "COMPLETED"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseTransactionQueryResult"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+  /api/bank/block/list:
+    get:
+      tags: [Bank]
+      summary: Query blocks (local storage)
+      parameters:
+        - name: pageSize
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 10 }
+        - name: pageNum
+          in: query
+          required: false
+          schema: { type: integer, format: int32, default: 1 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBlockQueryResult"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponseBase"
+components:
+  schemas:
+    ApiResponseBase:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        data: {}
+    ApiResponseVoid:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseBase"
+        - type: object
+          properties:
+            data:
+              nullable: true
+    ApiResponseRealEstate:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/RealEstate"
+    ApiResponseTransaction:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/Transaction"
+    ApiResponseRealEstateQueryResult:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/RealEstateQueryResult"
+    ApiResponseTransactionQueryResult:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/TransactionQueryResult"
+    ApiResponseBlockQueryResult:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponseBase"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/BlockQueryResult"
+    CreateRealEstateRequest:
+      type: object
+      required: [id, address, area, owner]
+      properties:
+        id: { type: string }
+        address: { type: string }
+        area: { type: number, format: double }
+        owner: { type: string }
+    CreateTransactionRequest:
+      type: object
+      required: [txId, realEstateId, seller, buyer, price]
+      properties:
+        txId: { type: string }
+        realEstateId: { type: string }
+        seller: { type: string }
+        buyer: { type: string }
+        price: { type: number, format: double }
+    RealEstate:
+      type: object
+      required: [id, propertyAddress, area, currentOwner, status, createTime, updateTime]
+      properties:
+        id: { type: string }
+        propertyAddress: { type: string }
+        area: { type: number, format: double }
+        currentOwner: { type: string }
+        status:
+          type: string
+          enum: ["NORMAL", "IN_TRANSACTION"]
+        createTime: { type: string, format: date-time }
+        updateTime: { type: string, format: date-time }
+    Transaction:
+      type: object
+      required: [id, realEstateId, seller, buyer, price, status, createTime, updateTime]
+      properties:
+        id: { type: string }
+        realEstateId: { type: string }
+        seller: { type: string }
+        buyer: { type: string }
+        price: { type: number, format: double }
+        status:
+          type: string
+          enum: ["PENDING", "COMPLETED"]
+        createTime: { type: string, format: date-time }
+        updateTime: { type: string, format: date-time }
+    RealEstateQueryResult:
+      type: object
+      required: [records, recordsCount, bookmark, fetchedRecordsCount]
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/RealEstate"
+        recordsCount: { type: integer, format: int32 }
+        bookmark: { type: string }
+        fetchedRecordsCount: { type: integer, format: int32 }
+    TransactionQueryResult:
+      type: object
+      required: [records, recordsCount, bookmark, fetchedRecordsCount]
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+        recordsCount: { type: integer, format: int32 }
+        bookmark: { type: string }
+        fetchedRecordsCount: { type: integer, format: int32 }
+    BlockData:
+      type: object
+      required: [block_num, block_hash, data_hash, prev_hash, tx_count, save_time]
+      properties:
+        block_num: { type: integer, format: int64 }
+        block_hash: { type: string }
+        data_hash: { type: string }
+        prev_hash: { type: string }
+        tx_count: { type: integer, format: int32 }
+        save_time: { type: string, format: date-time }
+    BlockQueryResult:
+      type: object
+      required: [blocks, total, page_size, page_num, has_more]
+      properties:
+        blocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/BlockData"
+        total: { type: integer, format: int32 }
+        page_size: { type: integer, format: int32 }
+        page_num: { type: integer, format: int32 }
+        has_more: { type: boolean }
+
