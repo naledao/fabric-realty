@@ -37,7 +37,20 @@ check_command() {
 
 log_info "检查必要的依赖..."
 check_command docker
-check_command docker-compose
+
+# === 修改开始：自动检测 Docker Compose 命令 ===
+DOCKER_COMPOSE_CMD=""
+if docker compose version &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker compose"
+    log_info "检测到 Docker Compose V2 (docker compose)"
+elif command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker-compose"
+    log_info "检测到 Docker Compose V1 (docker-compose)"
+else
+    log_error "未找到 docker compose 或 docker-compose 命令，请确保已安装 Docker Compose 插件"
+    exit 1
+fi
+# === 修改结束 ===
 
 echo -e "\n${GREEN}================================${NC}"
 echo -e "${GREEN}   Fabric-Realty 一键安装脚本${NC}"
@@ -92,8 +105,9 @@ if [ ! -f "docker-compose.yml" ]; then
     exit 1
 fi
 
-log_info "执行 docker-compose up -d..."
-docker-compose up -d
+# === 修改：使用变量 $DOCKER_COMPOSE_CMD 替代硬编码 ===
+log_info "执行 $DOCKER_COMPOSE_CMD up -d..."
+$DOCKER_COMPOSE_CMD up -d
 if [ $? -ne 0 ]; then
     log_error "应用服务启动失败！"
     exit 1
@@ -103,10 +117,11 @@ log_success "应用服务启动完成"
 # 检查服务状态
 log_info "检查服务状态..."
 sleep 5
-if [ "$(docker-compose ps -q | wc -l)" -gt 0 ]; then
+# === 修改：使用变量 $DOCKER_COMPOSE_CMD 替代硬编码 ===
+if [ "$($DOCKER_COMPOSE_CMD ps -q | wc -l)" -gt 0 ]; then
     log_success "所有服务已成功启动"
 else
-    log_error "部分服务可能未正常启动，请检查 docker-compose logs"
+    log_error "部分服务可能未正常启动，请检查 $DOCKER_COMPOSE_CMD logs"
     exit 1
 fi
 
