@@ -1,0 +1,9 @@
+version: '2.1'
+
+services:
+  fabric-realty.server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: togettoyou/fabric-realty.server:springboot
+
