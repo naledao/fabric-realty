@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.net.ssl.TrustManager;
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.io.Reader;
@@ -136,7 +137,7 @@ public class FabricGatewayClient implements FabricClient, FabricNetworkProvider,
 
         X509Certificate tlsCert = readX509Certificate(Path.of(org.tlsCertPath()));
         var credentials = TlsChannelCredentials.newBuilder()
-                .trustManager(tlsCert)
+                .trustManager((TrustManager) tlsCert)
                 .build();
 
         return Grpc.newChannelBuilder(org.peerEndpoint(), credentials)
@@ -168,7 +169,7 @@ public class FabricGatewayClient implements FabricClient, FabricNetworkProvider,
         }
     }
 
-    private static PrivateKey readPrivateKey(Path path) throws IOException {
+    private static PrivateKey readPrivateKey(Path path) throws IOException, InvalidKeyException {
         try (Reader reader = Files.newBufferedReader(path)) {
             return Identities.readPrivateKey(reader);
         }
