@@ -2,7 +2,7 @@ server:
   port: 8888
 
 app:
-  dataDir: /app/data
+  dataDir: ./data
   blockRetrySeconds: 30
 
 fabric:
