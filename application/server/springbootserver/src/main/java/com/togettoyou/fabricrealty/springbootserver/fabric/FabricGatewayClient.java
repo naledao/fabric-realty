@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.net.ssl.TrustManager;
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.io.Reader;
@@ -135,9 +134,8 @@ public class FabricGatewayClient implements FabricClient, FabricNetworkProvider,
         requireNonBlank(org.gatewayPeer(), "gatewayPeer");
         requireNonBlank(org.tlsCertPath(), "tlsCertPath");
 
-        X509Certificate tlsCert = readX509Certificate(Path.of(org.tlsCertPath()));
         var credentials = TlsChannelCredentials.newBuilder()
-                .trustManager((TrustManager) tlsCert)
+                .trustManager(Path.of(org.tlsCertPath()).toFile())
                 .build();
 
         return Grpc.newChannelBuilder(org.peerEndpoint(), credentials)
