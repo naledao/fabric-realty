@@ -13,7 +13,7 @@ FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
 COPY --from=builder /workspace/target/*.jar /app/app.jar
-COPY config/application.yml /app/config/application.yml
+COPY config/application.yaml /app/config/application.yml
 
 EXPOSE 8888
 ENTRYPOINT ["java","-jar","/app/app.jar"]
