@@ -28,12 +28,6 @@ public final class BlockEventsAccessor {
                 return events;
             }
             throw new IllegalStateException("block events 结果为空");
-        } catch (InvocationTargetException e) {
-            Throwable target = e.getTargetException();
-            if (target instanceof RuntimeException re) {
-                throw re;
-            }
-            throw new RuntimeException(target);
         } catch (Exception e) {
             if (e instanceof RuntimeException re) {
                 throw re;
