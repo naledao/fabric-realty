@@ -1,5 +1,6 @@
 package com.togettoyou.fabricrealty.springbootserver.block.listener;
 
+import org.hyperledger.fabric.client.BlockEventsRequest;
 import org.hyperledger.fabric.client.Network;
 
 import java.lang.reflect.InvocationTargetException;
@@ -19,51 +20,14 @@ public final class BlockEventsAccessor {
 
     private static Object createEventsSource(Network network, long startBlock) {
         try {
-            Method direct = findMethod(network.getClass(), "getBlockEvents", long.class);
-            if (direct != null) {
-                return direct.invoke(network, startBlock);
+            BlockEventsRequest.Builder builder = network.newBlockEventsRequest();
+            builder.startBlock(startBlock);
+            BlockEventsRequest request = builder.build();
+            Object events = request.getEvents();
+            if (events != null) {
+                return events;
             }
-            direct = findMethod(network.getClass(), "getBlockEvents", Long.class);
-            if (direct != null) {
-                return direct.invoke(network, startBlock);
-            }
-
-            direct = findMethod(network.getClass(), "blockEvents", long.class);
-            if (direct != null) {
-                return direct.invoke(network, startBlock);
-            }
-            direct = findMethod(network.getClass(), "blockEvents", Long.class);
-            if (direct != null) {
-                return direct.invoke(network, startBlock);
-            }
-
-            Method newRequest = findMethod(network.getClass(), "newBlockEventsRequest");
-            if (newRequest != null) {
-                Object builder = newRequest.invoke(network);
-                Object configured = tryInvoke(builder, "startBlock", long.class, startBlock);
-                if (configured == null) {
-                    configured = tryInvoke(builder, "startBlock", Long.class, startBlock);
-                }
-                if (configured == null) {
-                    configured = builder;
-                }
-
-                Object request = tryInvokeNoArgs(configured, "build");
-                if (request == null) {
-                    request = configured;
-                }
-                Object events = tryInvokeNoArgs(request, "getEvents");
-                if (events != null) {
-                    return events;
-                }
-                events = tryInvokeNoArgs(configured, "getEvents");
-                if (events != null) {
-                    return events;
-                }
-                return request;
-            }
-
-            throw new UnsupportedOperationException("当前 fabric-gateway Java SDK 未找到 block events API（getBlockEvents/newBlockEventsRequest）");
+            throw new IllegalStateException("block events 结果为空");
         } catch (InvocationTargetException e) {
             Throwable target = e.getTargetException();
             if (target instanceof RuntimeException re) {
@@ -126,30 +90,6 @@ public final class BlockEventsAccessor {
         try {
             return type.getMethod(name, parameterTypes);
         } catch (NoSuchMethodException ignored) {
-            return null;
-        }
-    }
-
-    private static Object tryInvoke(Object target, String name, Class<?> parameterType, Object argument) {
-        Method method = findMethod(target.getClass(), name, parameterType);
-        if (method == null) {
-            return null;
-        }
-        try {
-            return method.invoke(target, argument);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    private static Object tryInvokeNoArgs(Object target, String name) {
-        Method method = findMethod(target.getClass(), name);
-        if (method == null) {
-            return null;
-        }
-        try {
-            return method.invoke(target);
-        } catch (Exception ignored) {
             return null;
         }
     }
